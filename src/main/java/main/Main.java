@@ -24,15 +24,18 @@ public class Main {
         System.out.append("Starting server\n");
 
         AccountService accountService = new AccountService();
+        Statistic statistic = new Statistic(accountService);
 
         Servlet frontend = new Frontend(accountService);
         Servlet signUp = new SingupServlet(accountService);
         Servlet logout = new Logout(accountService);
-        Servlet admin = new Admin(accountService);
+        Servlet admin = new Admin(accountService, statistic);
 
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 
-        accountService.add("admin@mail.ru","admin"); //Создание дефолтного пользователя
+        accountService.add("admin@mail.ru","admin");
+        //String ses = accountService.auth("admin@mail.ru","admin");
+        //accountService.logout(ses);
 
         context.addServlet(new ServletHolder(frontend), "/api/v1/auth/signin");
         context.addServlet(new ServletHolder(signUp), "/sign_up");

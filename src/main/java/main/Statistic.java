@@ -10,6 +10,8 @@ import java.io.IOException;
 public class Statistic {
     private AccountService accountService;
 
+    public Statistic(AccountService accountService){ this.accountService = accountService;}
+
     public void fileWriter(String path, String entry) throws IOException{
         FileWriter wrt = null;
         try {

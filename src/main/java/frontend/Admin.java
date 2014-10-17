@@ -1,6 +1,7 @@
 package frontend;
 
 import main.AccountService;
+import main.Statistic;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -16,26 +17,15 @@ import java.io.IOException;
 public class Admin extends HttpServlet {
 
     private AccountService accountService;
+    private Statistic statistic;
 
-    public Admin(AccountService accountService){
+    public Admin(AccountService accountService, Statistic statistic){
         this.accountService = accountService;
+        this.statistic = statistic;
     }
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        long free = Runtime.getRuntime().freeMemory();
-        long max = Runtime.getRuntime().maxMemory();
-        long usage = max - free;
-        int users = accountService.total_user();
-        FileWriter wrt = null;
-        try {
-            File flt = new File("statistic.txt");
-            wrt = new FileWriter(flt);
-            wrt.write(String.valueOf(users));
-        } catch (IOException e) {
-        }finally {
-            if (wrt != null) {
-                wrt.close();
-            }
-        }
+        statistic.memory();
+        statistic.logined_users();
         response.setStatus(HttpServletResponse.SC_OK);
     }
 
