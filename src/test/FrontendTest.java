@@ -34,7 +34,7 @@ public class FrontendTest {
         verify(request, atLeastOnce()).getParameter("email");
         verify(request, atLeastOnce()).getParameter("password");
 
-        Assert.assertNotNull(null);
+        Assert.assertTrue(stringWrite.toString().contains(""));
     }
 
 }
