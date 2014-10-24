@@ -1,7 +1,10 @@
 package main;
 
 import base.AccountService;
+import base.GameMechanic;
+import base.WebSocketService;
 import frontend.*;
+import mechanic.GameMechanicImpl;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerList;
@@ -23,6 +26,9 @@ public class Main {
         System.out.append("Starting server\n");
 
         AccountService accountService = new AccountServiceImpl();
+        WebSocketService webSocketService = new WebSocketServiceImpl();
+        GameMechanic gameMechanic = new GameMechanicImpl(webSocketService);
+
         Statistic statistic = new Statistic(accountService);
 
         Servlet signIn = new SignInServlet(accountService);
@@ -30,9 +36,12 @@ public class Main {
         Servlet logOut = new LogOutServlet(accountService);
         Servlet admin = new AdminServlet(accountService, statistic);
 
+        //Servlet frontend = new FrontendServlet(accountService);
+
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 
         accountService.add("admin@mail.ru","admin");
+        accountService.add("admin1@mail.ru","admin");
         //String ses = accountService.auth("admin@mail.ru","admin");
         //accountService.logOut(ses);
 
@@ -40,17 +49,19 @@ public class Main {
         context.addServlet(new ServletHolder(signUp), "/sign_up");
         context.addServlet(new ServletHolder(logOut), "/logout");
         context.addServlet(new ServletHolder(admin), "/admin");
+        //context.addServlet(new ServletHolder(frontend), "/game.html");
+        context.addServlet(new ServletHolder(new WebSocketGameServlet(accountService, gameMechanic, webSocketService)), "/gameplay");
 
 
         ResourceHandler resource_handler = new ResourceHandler();
         resource_handler.setDirectoriesListed(true);
-        resource_handler.setResourceBase("public_html");
+        resource_handler.setResourceBase("static");
 
         HandlerList handlers = new HandlerList();
         handlers.setHandlers(new Handler[]{resource_handler, context});
         server.setHandler(handlers);
 
         server.start();
-        server.join();
+        gameMechanic.run();
     }
 }

@@ -1,9 +1,13 @@
 package frontend;
 
 import base.AccountService;
+import utils.PageGenerator;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by smike on 13.09.14.
@@ -17,7 +21,7 @@ public class SignInServlet extends HttpServlet {
     }
 
     public void doGet(HttpServletRequest request,
-                      HttpServletResponse response) throws ServletException, IOException {
+                             HttpServletResponse response) throws ServletException, IOException {
         response.setStatus(HttpServletResponse.SC_OK);
     }
 
@@ -29,7 +33,8 @@ public class SignInServlet extends HttpServlet {
         String sessionID = accountService.auth(email, password);
         if (sessionID != null){
             response.addCookie(new Cookie("newSession", sessionID));
-            response.setStatus(HttpServletResponse.SC_OK);
+            response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+            response.addHeader("Location", "/gameplay");
         }
         else {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

@@ -8,5 +8,6 @@ public interface AccountService {
     String auth(String email, String password);
     void logout(String session);
     int totalUser();
+    UserProfile getUser(String sessionID);
 
 }

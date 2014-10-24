@@ -41,6 +41,11 @@ public class AccountServiceImpl implements AccountService {
         sessions.remove(session);
     }
 
+    public UserProfile getUser(String sessionID){
+        Long userId = sessions.get(sessionID);
+        return users.get(userId);
+    }
+
     public int totalUser(){
         return sessions.size();
     }
