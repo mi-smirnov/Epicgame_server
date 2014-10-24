@@ -1,6 +1,6 @@
 import base.AccountService;
 import frontend.*;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,6 +15,7 @@ import static org.mockito.Mockito.*;
 /**
  * Created by smike on 23.10.14.
  */
+
 public class FrontendTest {
     final private static HttpServletRequest request = mock(HttpServletRequest.class);
     final private static HttpServletResponse response = mock(HttpServletResponse.class);
@@ -33,7 +34,7 @@ public class FrontendTest {
         verify(request, atLeastOnce()).getParameter("email");
         verify(request, atLeastOnce()).getParameter("password");
 
-        Assert.assertTrue(stringWrite.toString().contains(""));
+        Assert.assertNotNull(null);
     }
 
 }
