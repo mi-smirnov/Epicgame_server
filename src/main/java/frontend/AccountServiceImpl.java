@@ -14,8 +14,8 @@ public class AccountServiceImpl implements AccountService {
     private AtomicLong userIdGenerator = new AtomicLong();
     private AtomicLong sessionIdGenerator = new AtomicLong();
 
-    private Map<Long, UserProfile> users = new HashMap<>();
-    private Map<String, Long> sessions = new HashMap<>();
+    private Map<String, UserProfile> users = new HashMap<>();
+    private Map<String, String> sessions = new HashMap<>();
 
     public boolean add(String email, String password){
         for(UserProfile profile : users.values()){
@@ -23,17 +23,15 @@ public class AccountServiceImpl implements AccountService {
                 return false;
             }
         }
-        users.put(userIdGenerator.incrementAndGet(), new UserProfile(email, password));
+        users.put(email, new UserProfile(email, password));
         return true;
     }
     public String auth(String email, String password){
-        for(Map.Entry<Long, UserProfile> entry : users.entrySet()){
-            UserProfile profile = entry.getValue();
-            if (profile.getEmail().equals(email) && profile.getPassword().equals(password)){
-                String sessionID = Long.toString(sessionIdGenerator.incrementAndGet());
-                sessions.put(sessionID, entry.getKey());
-                return sessionID;
-            }
+        UserProfile profile = users.get(email);
+        if (profile != null && profile.getPassword().equals(password)){
+            String sessionID = Long.toString(sessionIdGenerator.incrementAndGet());
+            sessions.put(sessionID, email);
+            return sessionID;
         }
         return null;
     }
@@ -42,8 +40,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     public UserProfile getUser(String sessionID){
-        Long userId = sessions.get(sessionID);
-        return users.get(userId);
+        String email = sessions.get(sessionID);
+        return users.get(email);
     }
 
     public int totalUser(){
