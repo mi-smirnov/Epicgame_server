@@ -25,7 +25,7 @@ public class Main {
 
         System.out.append("Starting server\n");
 
-        AccountService accountService = new AccountServiceImpl();
+        AccountService accountService = new AccountServiceDataBaseImpl();
         WebSocketService webSocketService = new WebSocketServiceImpl();
         GameMechanic gameMechanic = new GameMechanicImpl(webSocketService);
 
@@ -40,22 +40,22 @@ public class Main {
 
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 
-        accountService.add("admin@mail.ru","admin");
-        accountService.add("admin1@mail.ru","admin");
+        //accountService.add("admin@mail.ru","admin");
+        //accountService.add("admin1@mail.ru","admin");
         //String ses = accountService.auth("admin@mail.ru","admin");
         //accountService.logOut(ses);
 
         context.addServlet(new ServletHolder(signIn), "/api/v1/auth/signin");
-        context.addServlet(new ServletHolder(signUp), "/sign_up");
+        context.addServlet(new ServletHolder(signUp), "/signup");
         context.addServlet(new ServletHolder(logOut), "/logout");
         context.addServlet(new ServletHolder(admin), "/admin");
-        //context.addServlet(new ServletHolder(frontend), "/game.html");
+        //context.addServlet(new ServletHolder(frontend), "/game");
         context.addServlet(new ServletHolder(new WebSocketGameServlet(accountService, gameMechanic, webSocketService)), "/gameplay");
 
 
         ResourceHandler resource_handler = new ResourceHandler();
         resource_handler.setDirectoriesListed(true);
-        resource_handler.setResourceBase("static");
+        resource_handler.setResourceBase("public_html");
 
         HandlerList handlers = new HandlerList();
         handlers.setHandlers(new Handler[]{resource_handler, context});

@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * Created by smike on 13.09.14.
  */
 public class AccountServiceImpl implements AccountService {
-    private AtomicLong userIdGenerator = new AtomicLong();
+
     private AtomicLong sessionIdGenerator = new AtomicLong();
 
     private Map<String, UserProfile> users = new HashMap<>();
