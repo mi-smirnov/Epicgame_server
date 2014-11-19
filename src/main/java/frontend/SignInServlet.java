@@ -6,6 +6,7 @@ import utils.PageGenerator;
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,9 +33,12 @@ public class SignInServlet extends HttpServlet {
 
         String sessionID = accountService.auth(email, password);
         if (sessionID != null){
-            response.addCookie(new Cookie("newSession", sessionID));
-            response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-            response.addHeader("Location", "/gameplay");
+            Cookie authCookie = new Cookie("newSession", sessionID);
+            authCookie.setPath("/");
+            authCookie.setMaxAge(((int)(Calendar.getInstance().getTimeInMillis()/1000)) + 60*60*24*365);
+
+            response.addCookie(authCookie);
+            response.setStatus(HttpServletResponse.SC_OK);
         }
         else {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

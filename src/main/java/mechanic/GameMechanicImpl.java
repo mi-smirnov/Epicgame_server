@@ -16,7 +16,7 @@ import java.util.Set;
  */
 public class GameMechanicImpl implements GameMechanic {
     private static int STEP_TIME = 100;
-    private static int gameTime = 10000;
+    private static int gameTime = 30000;
     private UserProfile waiter;
     private Map<String, GameSession> nameInGame = new HashMap<>();
     private Set<GameSession> allSessions = new HashSet<>();
