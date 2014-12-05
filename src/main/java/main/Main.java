@@ -11,6 +11,9 @@ import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import resources.GMResource;
+import resources.ResourceFactory;
+import resources.ServerResource;
 import utils.Statistic;
 
 import javax.servlet.Servlet;
@@ -21,37 +24,28 @@ import javax.servlet.Servlet;
 public class Main {
 
     public static void main(String[] args) throws Exception {
-        Server server = new Server(8080);
-
-        System.out.append("Starting server\n");
+        GMResource gameResource = (GMResource) ResourceFactory.getInstance().get("./data/GMConfig.xml");
+        ServerResource serverResource = (ServerResource) ResourceFactory.getInstance().get("./data/ServerConfig.xml");
+        Server server = new Server(serverResource.getPort());
 
         AccountService accountService = new AccountServiceDataBaseImpl();
         WebSocketService webSocketService = new WebSocketServiceImpl();
-        GameMechanic gameMechanic = new GameMechanicImpl(webSocketService);
+        GameMechanic gameMechanic = new GameMechanicImpl(webSocketService, gameResource);
 
         Statistic statistic = new Statistic(accountService);
-
         Servlet signIn = new SignInServlet(accountService);
         Servlet signUp = new SingUpServlet(accountService);
         Servlet logOut = new LogOutServlet(accountService);
         Servlet admin = new AdminServlet(accountService, statistic);
-
-        //Servlet frontend = new FrontendServlet(accountService);
+        Servlet scores = new ScoreBoardServlet();
 
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-
-        //accountService.add("admin@mail.ru","admin");
-        //accountService.add("admin1@mail.ru","admin");
-        //String ses = accountService.auth("admin@mail.ru","admin");
-        //accountService.logOut(ses);
-
         context.addServlet(new ServletHolder(signIn), "/api/v1/auth/signin");
         context.addServlet(new ServletHolder(signUp), "/signup");
         context.addServlet(new ServletHolder(logOut), "/logout");
         context.addServlet(new ServletHolder(admin), "/admin");
-        //context.addServlet(new ServletHolder(frontend), "/game");
+        context.addServlet(new ServletHolder(scores), "/scores");
         context.addServlet(new ServletHolder(new WebSocketGameServlet(accountService, gameMechanic, webSocketService)), "/gameplay");
-
 
         ResourceHandler resource_handler = new ResourceHandler();
         resource_handler.setDirectoriesListed(true);
