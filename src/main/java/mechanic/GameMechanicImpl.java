@@ -1,14 +1,13 @@
 package mechanic;
 
 import base.GameMechanic;
+import base.GameUser;
 import base.UserProfile;
 import base.WebSocketService;
+import resources.GMResource;
 import utils.TimeHelper;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -16,14 +15,16 @@ import java.util.Set;
  */
 public class GameMechanicImpl implements GameMechanic {
     private static int STEP_TIME = 100;
-    private static int gameTime = 30000;
     private UserProfile waiter;
     private Map<String, GameSession> nameInGame = new HashMap<>();
     private Set<GameSession> allSessions = new HashSet<>();
     private WebSocketService webSocketService;
+    private GMResource gameResource;
 
-    public GameMechanicImpl(WebSocketService webSocketService){
+
+    public GameMechanicImpl(WebSocketService webSocketService, GMResource gameResource){
         this.webSocketService = webSocketService;
+        this.gameResource = gameResource;
     }
 
     public void addUser(UserProfile user){
@@ -46,13 +47,40 @@ public class GameMechanicImpl implements GameMechanic {
     }
 
     private void gameStep(){
-        for (GameSession session : allSessions){
-            if (session.getSessionTime() > gameTime){
+        Iterator<GameSession> it = allSessions.iterator();
+        while(it.hasNext()){
+            GameSession session = it.next();
+            if (session.getSessionTime() > gameResource.getGameTime()){
                 boolean firstWin = session.isFirstWin();
                 webSocketService.notifyGameOver(session.getFirst(), firstWin);
                 webSocketService.notifyGameOver(session.getSecond(), !firstWin);
+                it.remove();
             }
         }
+    }
+
+    public void move(UserProfile user, int key){
+        GameSession session = nameInGame.get(user.getEmail());
+        GameUser gameUser = session.getSelf(user.getEmail());
+        session.moveTank(gameUser,key);
+        String enemyEmail = gameUser.getEnemyEmail();
+        GameUser gameEnemyUser = session.getSelf(enemyEmail);
+        webSocketService.notifyNewPosition(gameUser);
+        webSocketService.notifyNewPosition(gameEnemyUser);
+    }
+
+    public void incrementScore(UserProfile user){
+        GameSession session = nameInGame.get(user.getEmail());
+        GameUser gameUser = session.getSelf(user.getEmail());
+        gameUser.incrementMyScore();
+        GameUser gameEnemyUser = session.getEnemy(user.getEmail());
+        gameEnemyUser.incrementEnemyScore();
+        webSocketService.notifyMyNewScore(gameUser);
+        webSocketService.notifyEnemyNewScore(gameEnemyUser);
+    }
+
+    public GameSession getGameSession(UserProfile user){
+        return nameInGame.get(user.getEmail());
     }
 
     @Override
@@ -62,5 +90,4 @@ public class GameMechanicImpl implements GameMechanic {
             TimeHelper.sleep(STEP_TIME);
         }
     }
-
 }

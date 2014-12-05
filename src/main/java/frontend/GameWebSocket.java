@@ -4,12 +4,16 @@ import base.GameMechanic;
 import base.GameUser;
 import base.UserProfile;
 import base.WebSocketService;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import org.json.simple.JSONObject;
+import serverResponse.ServerResponse;
+
+import java.io.IOException;
 
 /**
  * Created by smike on 19.10.14.
@@ -36,15 +40,17 @@ public class GameWebSocket {
     }
 
     public void startGame(GameUser gameUser){
-        JSONObject jsonStart = new JSONObject();
-        jsonStart.put("status", "start");
-        jsonStart.put("enemy", gameUser.getEnemyEmail());
+        ServerResponse response = new ServerResponse();
+        response.setStatus("start");
+        response.setEmail(gameUser.getEmail());
+        response.setEnemy(gameUser.getEnemyEmail());
+        response.setField(gameMechanic.getGameSession(gameUser).getField());
         try {
-            session.getRemote().sendString(jsonStart.toJSONString());
-        } catch (Exception e){
-            System.out.append(e.toString());
+            String object = new ObjectMapper().writeValueAsString(response);
+            session.getRemote().sendString(object);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
     }
 
     public void gameOver(GameUser gameUser, boolean win){
@@ -82,9 +88,26 @@ public class GameWebSocket {
         }
     }
 
+    public void moveTank(GameUser gameUser){
+        ServerResponse response = new ServerResponse();
+        response.setStatus("move");
+        response.setEmail(gameUser.getEmail());
+        response.setX(gameUser.getX());
+        response.setY(gameUser.getY());
+        response.setField(gameMechanic.getGameSession(gameUser).getField());
+        try {
+            String object = new ObjectMapper().writeValueAsString(response);
+            session.getRemote().sendString(object);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     @OnWebSocketMessage
     public void onMessage(String data){
-        //gameMechanic
+        System.out.print("data: " + data);
+        gameMechanic.move(userProfile, Integer.parseInt(data));
+        gameMechanic.incrementScore(userProfile);
     }
 
     @OnWebSocketConnect
@@ -98,5 +121,4 @@ public class GameWebSocket {
     public void onClose(int statusCode, String reason) {
 
     }
-
 }

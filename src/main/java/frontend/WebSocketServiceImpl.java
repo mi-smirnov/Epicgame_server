@@ -23,4 +23,13 @@ public class WebSocketServiceImpl implements WebSocketService {
         GameWebSocket gameWebSocket = userSockets.get(user.getEmail());
         gameWebSocket.gameOver(user, win);
     }
+    public void notifyNewPosition(GameUser user){
+        userSockets.get(user.getEmail()).moveTank(user);
+    }
+    public void notifyMyNewScore(GameUser user){
+        userSockets.get(user.getEmail()).setMyScore(user);
+    }
+    public void notifyEnemyNewScore(GameUser user){
+        userSockets.get(user.getEmail()).setEnemyScore(user);
+    }
 }
