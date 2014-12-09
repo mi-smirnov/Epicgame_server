@@ -3,6 +3,8 @@ package main;
 import base.AccountService;
 import base.GameMechanic;
 import base.WebSocketService;
+import dbService.DBService;
+import dbService.DBServiceImpl;
 import frontend.*;
 import mechanic.GameMechanicImpl;
 import org.eclipse.jetty.server.Handler;
@@ -28,7 +30,9 @@ public class Main {
         ServerResource serverResource = (ServerResource) ResourceFactory.getInstance().get("./data/ServerConfig.xml");
         Server server = new Server(serverResource.getPort());
 
-        AccountService accountService = new AccountServiceDataBaseImpl();
+
+        DBService dbService = new DBServiceImpl();
+        AccountService accountService = new AccountServiceDataBaseImpl(dbService);
         WebSocketService webSocketService = new WebSocketServiceImpl();
         GameMechanic gameMechanic = new GameMechanicImpl(webSocketService, gameResource);
 

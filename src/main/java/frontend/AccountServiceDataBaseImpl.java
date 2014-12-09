@@ -2,8 +2,8 @@ package frontend;
 
 import base.AccountServiceDataBase;
 import base.UserProfile;
-import dao.UserDAO;
 import dataSets.UserDataSet;
+import dbService.DBService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,17 +17,22 @@ public class AccountServiceDataBaseImpl implements AccountServiceDataBase{
 
     private AtomicLong sessionIdGenerator = new AtomicLong();
     private Map<String, String> sessions = new HashMap<>();
+    private DBService dbService;
+
+    public AccountServiceDataBaseImpl(DBService dbService) {
+        this.dbService = dbService;
+    }
 
 
     @Override
     public boolean add(String email, String password) {
         UserDataSet newUser = new UserDataSet(email, password);
-        return UserDAO.add(newUser);
+        return dbService.add(newUser);
     }
 
     @Override
     public String auth(String email, String password) {
-        UserDataSet user = UserDAO.getUser(email);
+        UserDataSet user = dbService.getUser(email);
         if (user != null && user.getPassword().equals(password)){
             String sessionID = Long.toString(sessionIdGenerator.incrementAndGet());
             sessions.put(sessionID, email);
@@ -49,7 +54,7 @@ public class AccountServiceDataBaseImpl implements AccountServiceDataBase{
     @Override
     public UserProfile getUser(String sessionID) {
         String email = sessions.get(sessionID);
-        UserDataSet user = UserDAO.getUser(email);
+        UserDataSet user = dbService.getUser(email);
         return new UserProfile(user.getEmail(), user.getPassword());
     }
 }
