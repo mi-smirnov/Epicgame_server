@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Calendar;
 
 
 /**
@@ -15,6 +16,8 @@ import java.io.IOException;
 public class SingUpServlet extends HttpServlet{
 
     private AccountService accountService;
+
+    private static final int COOKIE_TIME_EXPIRES = 60*60*24*365;
 
     public SingUpServlet(AccountService accountService){
         this.accountService = accountService;
@@ -33,7 +36,11 @@ public class SingUpServlet extends HttpServlet{
         if (newUser){
             String sessionID = accountService.auth(email, password);
             if (sessionID != null){
-                response.addCookie(new Cookie("newSession", sessionID));
+                Cookie authCookie = new Cookie("newSession", sessionID);
+                authCookie.setPath("/");
+                authCookie.setMaxAge(((int)(Calendar.getInstance().getTimeInMillis()/1000)) + COOKIE_TIME_EXPIRES);
+
+                response.addCookie(authCookie);
                 response.setStatus(HttpServletResponse.SC_OK);
             }
             else {

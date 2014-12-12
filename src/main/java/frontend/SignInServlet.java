@@ -17,6 +17,8 @@ public class SignInServlet extends HttpServlet {
 
     private AccountService accountService;
 
+    private static final int COOKIE_TIME_EXPIRES = 60*60*24*365;
+
     public SignInServlet(AccountService accountService){
         this.accountService = accountService;
     }
@@ -35,7 +37,7 @@ public class SignInServlet extends HttpServlet {
         if (sessionID != null){
             Cookie authCookie = new Cookie("newSession", sessionID);
             authCookie.setPath("/");
-            authCookie.setMaxAge(((int)(Calendar.getInstance().getTimeInMillis()/1000)) + 60*60*24*365);
+            authCookie.setMaxAge(((int)(Calendar.getInstance().getTimeInMillis()/1000)) + COOKIE_TIME_EXPIRES);
 
             response.addCookie(authCookie);
             response.setStatus(HttpServletResponse.SC_OK);
