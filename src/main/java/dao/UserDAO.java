@@ -8,7 +8,7 @@ import org.hibernate.criterion.Restrictions;
  * Created by smike on 08.11.14.
  */
 public class UserDAO {
-    private SessionFactory sessionFactory;
+    private final SessionFactory sessionFactory;
 
     public UserDAO(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
