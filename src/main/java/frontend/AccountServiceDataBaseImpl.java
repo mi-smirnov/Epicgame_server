@@ -1,6 +1,6 @@
 package frontend;
 
-import base.AccountServiceDataBase;
+import base.AccountService;
 import base.UserProfile;
 import dataSets.UserDataSet;
 import dbService.DBService;
@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Created by smike on 08.11.14.
  */
-public class AccountServiceDataBaseImpl implements AccountServiceDataBase{
+public class AccountServiceDataBaseImpl implements AccountService {
 
     private AtomicLong sessionIdGenerator = new AtomicLong();
     private Map<String, String> sessions = new HashMap<>();
